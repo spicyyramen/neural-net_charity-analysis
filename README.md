@@ -35,67 +35,49 @@ The model accuracy was initially 72.58%, which is just short of the 75% cutoff. 
 ![First Model Accuracy](./resources/images/original-model.png)<br>
 
 ***Steps taken to optimize model***<br>
-1. **Adding an extra hidden layer**<br>
-Adding in an extra hidden layer with `units`=10 and activation = `relu` slightly decreased the accuracy down to 72.52%.<br>
+1. **Drop `INCOME_AMT` column**<br>
+This column had a weird bin 'Jan-99' which seemed like an input error or something, so I thought it might be confusing the model, and decided to remove the entire column to see what happened.<br>
 
-    ***Structure***
-
-    <br>![Opt 1 Structure](./resources/images/opt1_structure.png)<br>
-
-    ***Accuracy***
-
-    <br>![First Optimization- Extra Layer](./resources/images/optimization1_extraLayer.png)<br>
-
-2. **Third hidden layer added, decrease units/layer**<br>
-Decreasing the number of units per layer decreased the accuracy further down to 72.15%.<br>
+    ![INCOME_AMOUNTS column](./resources/images/inc_amt.png)
 
 
 
-    ***Structure***
+2. **Bin values in `ASK_AMT` column**<br>
+The values in the `ASK_AMT` column had a wide distribution and high variance, with the lowest value being 5000, and the highest value being 8.5mil. I created bins using `pd.qcut` so they would be divided based on distribution, then added the bins as a column to the dataframe and dropped the original `ASK_AMT` column. This new binned column was then changed to an object datatype so it could be encoded with the rest of the categorical variables.<br>
 
-    <br>![Opt 2 Structure](./resources/images/opt2_structure.png)<br>
-
-    ***Accuracy***
-
-    <br>![2nd Optimization](./resources/images/optimization2.png)<br>
+    ![Ask bins](./resources/images/ask_bins.png)
 
 
-3. **Third hidden layer added, increase epochs to 100**<br>
-Going back to the same units/layer as in optimization 1 and increasing the epochs to 100 brought the accuracy back up to 72.48%.<br>
+3. **Model Structure Changes**<br>
+There was a third hidden layer added to increase the complexity of the model. Additionally, each hidden layer had the units increased. Layers 1&2 were increased to be 3x than the input layer, and the third layer was set to have the same units as the input layer. The activation functions were kept the same (hidden layers = `relu`, output layer = `sigmoid`).<br>
 
 
 
     ***Structure***
 
-    <br>![Opt 3 Structure](./resources/images/opt3_structure.png)<br>
-
-    ***Accuracy***
-
-    <br>![3rd Optimization](./resources/images/optimization3.png)<br>
+    <br>![Model Structure](./resources/images/change_structure.png)<br>
 
 
-4. **Change `CLASSIFICATION` threshold, added third hidden layer, increase units/layer, increase epochs**<br>
-This final model increased the accuracy very slightly up to 72.59%, but also increased the loss by almost 20%.<br>
 
-    ***Change to `CLASSIFICATION` binning threshold***<br>
-    Since the distribution of data points for the classification column were skewed right, I thought increasing the threshold for binning as 'Other' from 1000 to 1500 to reduce the total number of Classification categories might improve the model's performance.
+4. **Increase number of epochs**<br>
+The training code was updated to train over 250 epochs instead of 50.<br>
 
-    <br>![Classification bin change](./resources/images/class_change.png)
+***Model Accuracy***<br>
 
-    ***Structure***
+The accuracy with the above changes was 71.66%, so slightly diminished from the original model. <br>
 
-    <br>![Opt 4 Structure](./resources/images/opt4_struct.png)<br>
+![Accuracy](./resources/images/opt_model_acc.png)
 
-    ***Accuracy***
+5. **Change activation function**<br>
+The trained model was called back to evaluate an updated model where the activation function on the first hidden layer was changed to `elu`. This change decreased performance down to 65.20%, and the loss increased significantly to 704%.<br>
 
-    <br>![4th Optimization](./resources/images/opt4_acc.png)<br>
+    ![Accuracy-elu](./resources/images/change_activations.png)
 
 ## Summary
 
 ### Overall results
-Overall, even with several changes I was only able to improve the accuracy of the the model by 0.01%, but this came at the expense of increasing the loss by almost 20%. It appeared that increasing the complexity of the model hindered its performance. <br>
+Overall, even with several changes I was unable to improve on the original model. In fact, it seemed that increasing the complexity of the model and further manipulating the starting data only worked to diminish the model's performance. So, the original version of this model with an accuracy of approximately 73% may be about as good as it gets for this type of model. <br>
 
-Overall, I think the original model was best, but there are potentially other things that could be done to better optimize the model. For instance, binning the `ASK_AMT` column values since they have such a huge variance, or cleaning up the `INCOME_AMT` column, since the bins for that column are spread inconsistently and there's a category labeled 'Jan-99' which seems like an error. 
 
 ### Recommendation for how a different model could solve this classification problem
 It's  possible a Random Forest Classifier Model could work for this problem. The data is large, but not particularly complex, so a Random Forest Classifier model might be able to get similar results but much quicker and with much fewer optimizations. The neural network model may have overcomplicated the problem, so something simpler like a Random Forest could be a better fit for the data. 
