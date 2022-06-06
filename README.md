@@ -1,6 +1,8 @@
 # Neural Network Model - Charity Analysis
 
 ## Project Overview
+<br>
+The purpose of this project is to use a neural network to predict whether a charity campaign was likely to be successful based on previous campaign data. 
 
 ## Results
 
